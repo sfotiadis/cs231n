@@ -144,10 +144,11 @@ class KNearestNeighbor(object):
     """
     num_test = dists.shape[0]
     y_pred = np.zeros(num_test)
-    for i in xrange(num_test):
+    num_classes = np.unique(self.y_train).shape[0]
+    # for i in xrange(num_test): # I VECTORIZED IT
       # A list of length k storing the labels of the k nearest neighbors to
       # the ith test point.
-      closest_y = []
+      # closest_y = []
       #########################################################################
       # TODO:                                                                 #
       # Use the distance matrix to find the k nearest neighbors of the ith    #
@@ -155,7 +156,7 @@ class KNearestNeighbor(object):
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      pass
+    closest_y = self.y_train[np.argsort(dists, axis=1)[:,:k]]
       #########################################################################
       # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
@@ -163,7 +164,7 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      pass
+    y_pred = np.argmax(np.apply_along_axis(lambda x: np.bincount(x, minlength=num_classes), axis=1, arr=closest_y), axis=1)
       #########################################################################
       #                           END OF YOUR CODE                            #
       #########################################################################
