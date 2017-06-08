@@ -32,7 +32,6 @@ def svm_loss_naive(W, X, y, reg):
 			if j == y[i]:
 				continue
 			margin = scores[j] - correct_class_score + 1 # note delta = 1
-			# print("%d %d %f" % (i,j,margin))
 			if margin > 0:
 				dW[:,j] += X[i]
 				dW[:,y[i]] -= X[i]
@@ -74,14 +73,14 @@ def svm_loss_vectorized(W, X, y, reg):
 	# result in loss.                                                           #
 	#############################################################################
 	delta = 1.0
-	scores = W.dot(x)
+	scores = X.dot(W)
+	num_train = X.shape[0]
 	# compute the margins for all classes in one vector operation
-	margins = np.maximum(0, scores - scores[y] + delta)
+	margins = np.maximum(0, scores - scores[range(num_train), y][:, np.newaxis] + delta)
 	# on y-th position scores[y] - scores[y] canceled and gave delta. We want
 	# to ignore the y-th position and only consider margin on max wrong class
-	margins[y] = 0
-	loss_i = np.sum(margins)
-	return loss_i
+	margins[range(num_train), y] = 0
+	loss = np.sum(margins)/num_train
 
 	#############################################################################
 	#                             END OF YOUR CODE                              #
