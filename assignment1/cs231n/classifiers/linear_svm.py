@@ -81,6 +81,7 @@ def svm_loss_vectorized(W, X, y, reg):
 	# to ignore the y-th position and only consider margin on max wrong class
 	margins[range(num_train), y] = 0
 	loss = np.sum(margins)/num_train
+	loss += reg * np.sum(W * W)
 
 	#############################################################################
 	#                             END OF YOUR CODE                              #
