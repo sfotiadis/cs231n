@@ -76,7 +76,12 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    # y1 = np.maximum(np.dot(X, W1) + b1, 0)
+    # y2 = np.dot(y1, W2) + b2
+    a1 = np.dot(X, W1) + b1 # pre-activations of first hidden layer
+    h1 = np.maximum(a1, 0) # ReLU of first hidden layer
+    a2 = np.dot(h1, W2) + b2 # scores of output layer
+    scores = a2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -86,14 +91,17 @@ class TwoLayerNet(object):
       return scores
 
     # Compute the loss
-    loss = None
     #############################################################################
     # TODO: Finish the forward pass, and compute the loss. This should include  #
     # both the data loss and L2 regularization for W1 and W2. Store the result  #
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    pass
+    scores_exp = np.exp(scores)
+    probs = scores_exp / np.sum(scores_exp, axis=1, keepdims=True) 
+
+    loss = np.mean(-np.log(probs[range(N), y]))
+    loss += reg * (np.sum(W1*W1) + np.sum(W2*W2))
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -105,7 +113,16 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    dscores = probs
+    dscores[range(N), y] -= 1
+    dscores /= N
+
+    grads['W2'] = np.dot(h1.T, dscores)
+    grads['W2'] += 2*reg*W2
+    
+    grads['b2'] = np.sum(dscores, axis=0)
+
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
