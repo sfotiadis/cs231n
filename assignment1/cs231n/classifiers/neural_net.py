@@ -24,7 +24,7 @@ class TwoLayerNet(object):
     Initialize the model. Weights are initialized to small random values and
     biases are initialized to zero. Weights and biases are stored in the
     variable self.params, which is a dictionary with the following keys:
-
+ 
     W1: First layer weights; has shape (D, H)
     b1: First layer biases; has shape (H,)
     W2: Second layer weights; has shape (H, C)
@@ -97,8 +97,8 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    scores_exp = np.exp(scores)
-    probs = scores_exp / np.sum(scores_exp, axis=1, keepdims=True) 
+    h2 = np.exp(a2)
+    probs = h2 / np.sum(h2, axis=1, keepdims=True) 
 
     loss = np.mean(-np.log(probs[range(N), y]))
     loss += reg * (np.sum(W1*W1) + np.sum(W2*W2))
@@ -113,15 +113,25 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    dscores = probs
-    dscores[range(N), y] -= 1
-    dscores /= N
+    relugrad = np.vectorize(lambda x: 1 if x>0 else 0) # relu gradient
 
-    grads['W2'] = np.dot(h1.T, dscores)
+    da2 = probs
+    da2[range(N), y] -= 1
+    dw2 = np.dot(h1.T, da2) / N
+    db2 = np.sum(da2, axis=0) / N
+
+    dh1 = np.dot(da2, W2.T)
+    da1 = dh1 * relugrad(h1) 
+    dw1 = np.dot(X.T, da1) / N
+    db1 = np.sum(da1, axis=0) / N
+
+    grads['W2'] = dw2 
     grads['W2'] += 2*reg*W2
-    
-    grads['b2'] = np.sum(dscores, axis=0)
+    grads['b2'] = db2
 
+    grads['W1'] = dw1
+    grads['W1'] += 2*reg*W1
+    grads['b1'] = db1
 
     #############################################################################
     #                              END OF YOUR CODE                             #
