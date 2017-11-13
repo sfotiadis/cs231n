@@ -24,7 +24,7 @@ class TwoLayerNet(object):
     Initialize the model. Weights are initialized to small random values and
     biases are initialized to zero. Weights and biases are stored in the
     variable self.params, which is a dictionary with the following keys:
- 
+
     W1: First layer weights; has shape (D, H)
     b1: First layer biases; has shape (H,)
     W2: Second layer weights; has shape (H, C)
@@ -85,7 +85,7 @@ class TwoLayerNet(object):
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
-    
+
     # If the targets are not given then jump out, we're done
     if y is None:
       return scores
@@ -98,7 +98,7 @@ class TwoLayerNet(object):
     # classifier loss.                                                          #
     #############################################################################
     h2 = np.exp(a2)
-    probs = h2 / np.sum(h2, axis=1, keepdims=True) 
+    probs = h2 / np.sum(h2, axis=1, keepdims=True)
 
     loss = np.mean(-np.log(probs[range(N), y]))
     loss += reg * (np.sum(W1*W1) + np.sum(W2*W2))
@@ -121,11 +121,11 @@ class TwoLayerNet(object):
     db2 = np.sum(da2, axis=0) / N
 
     dh1 = np.dot(da2, W2.T)
-    da1 = dh1 * relugrad(h1) 
+    da1 = dh1 * relugrad(h1)
     dw1 = np.dot(X.T, da1) / N
     db1 = np.sum(da1, axis=0) / N
 
-    grads['W2'] = dw2 
+    grads['W2'] = dw2
     grads['W2'] += 2*reg*W2
     grads['b2'] = db2
 
@@ -168,15 +168,15 @@ class TwoLayerNet(object):
     train_acc_history = []
     val_acc_history = []
 
+    import random
     for it in xrange(num_iters):
-      X_batch = None
-      y_batch = None
-
+      batch = random.sample(range(num_train), batch_size) if num_train > batch_size else range(num_train)
+      X_batch = X[batch]
+      y_batch = y[batch]
       #########################################################################
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      pass
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -191,7 +191,11 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      pass
+      self.params['W1']  -= learning_rate * grads['W1']
+      self.params['b1']  -= learning_rate * grads['b1']
+      self.params['W2']  -= learning_rate * grads['W2']
+      self.params['b2']  -= learning_rate * grads['b2']
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -236,7 +240,11 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+    a1 = np.dot(X, self.params['W1']) + self.params['b1'] # pre-activations of first hidden layer
+    h1 = np.maximum(a1, 0) # ReLU of first hidden layer
+    a2 = np.dot(h1, self.params['W2']) + self.params['b2'] # scores of output layer
+    scores = a2
+    y_pred = np.argmax(a2, axis=1)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
